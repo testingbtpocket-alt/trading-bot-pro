@@ -1,7 +1,6 @@
 import telebot
 import requests
 import sqlite3
-import time
 
 TOKEN = "8834762087:AAFXwue33RSsd0eIPfzUmeReNcSmVZCdiOk"
 ADMIN_USERNAME = "@Kasper404_01"
@@ -92,6 +91,33 @@ def callback_handler(call):
             f"⏱ <b>M15 RSI:</b> {r15:.1f}")
     
     bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=get_trading_keyboard(), parse_mode="HTML")
+
+# --- ADMIN PANEL ---
+@bot.message_handler(commands=['grant'])
+def grant_access(message):
+    if message.from_user.id != ADMIN_ID: return
+    try:
+        target_id = int(message.text.split()[1])
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET has_access = 1 WHERE user_id = ?", (target_id,))
+        conn.commit()
+        conn.close()
+        bot.reply_to(message, f"✅ ID {target_id} ga ruxsat berildi!")
+    except: bot.reply_to(message, "⚠️ Format: /grant [id]")
+
+@bot.message_handler(commands=['users'])
+def list_users(message):
+    if message.from_user.id != ADMIN_ID: return
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username, has_access FROM users")
+    users = cursor.fetchall()
+    conn.close()
+    text = "👥 <b>Ro'yxatdan o'tganlar:</b>\n\n"
+    for u in users:
+        text += f"ID: {u[0]} | @{u[1]} | Ruxsat: {'✅' if u[2] else '❌'}\n"
+    bot.reply_to(message, text, parse_mode="HTML")
 
 # --- BOTNI ISHGA TUSHIRISH ---
 if __name__ == "__main__":
