@@ -1,8 +1,9 @@
 import telebot
 import requests
 import sqlite3
+import time
 
-TOKEN = "8834762087:AAFXpv-KwL1fIZ9sj6qWAvCPsvFjKxXDryU"
+TOKEN = "8834762087:AAFXwue33RSsd0eIPfzUmeReNcSmVZCdiOk"
 ADMIN_USERNAME = "@Kasper404_01"
 ADMIN_ID = 8954805209
 
@@ -74,7 +75,6 @@ def callback_handler(call):
     
     r1, r5, r15 = get_rsi(symbol, "1m"), get_rsi(symbol, "5m"), get_rsi(symbol, "15m")
     
-    # Prototipdan olingan kuchli signal logikasi
     if r1 < 40 and r5 < 45:
         sig, ex, col = "📈 BUY (KUCHLI)", "2-5 daqiqa", "✅"
     elif r1 > 60 and r5 > 55:
@@ -93,6 +93,8 @@ def callback_handler(call):
     
     bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=get_trading_keyboard(), parse_mode="HTML")
 
+# --- BOTNI ISHGA TUSHIRISH ---
 if __name__ == "__main__":
     init_db()
+    print("Bot muvaffaqiyatli ishga tushdi!")
     bot.polling(none_stop=True)
